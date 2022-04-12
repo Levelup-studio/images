@@ -27,6 +27,10 @@ RUN \
     upx /fileserver/fileserver
 
 FROM --platform=linux/arm64 alpine:3.15
+RUN \
+   echo 'https://dl-cdn.alpinelinux.org/alpine/edge/main/' >> /etc/apk/repositories &&\
+   echo 'https://dl-cdn.alpinelinux.org/alpine/edge/community/' >> /etc/apk/repositories &&\
+   apk update
 
 RUN \
     apk add xvfb-run xorg-server xsel x11vnc feh fluxbox xvfb pulseaudio-utils nano &&\

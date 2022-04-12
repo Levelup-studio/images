@@ -25,10 +25,10 @@ func (c *Chrome) Build() error {
 
 	pkgTagVersion := extractVersion(pkgVersion)
 
-	driverVersion, err := c.parseChromeDriverVersion(pkgTagVersion)
-	if err != nil {
-		return fmt.Errorf("parse chromedriver version: %v", err)
-	}
+	// driverVersion, err := c.parseChromeDriverVersion(pkgTagVersion)
+	// if err != nil {
+	// 	return fmt.Errorf("parse chromedriver version: %v", err)
+	// }
 
 	// Build dev image
 	devDestDir, err := tmpDir()
