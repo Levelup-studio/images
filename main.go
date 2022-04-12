@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/aerokube/images/cmd"
+	"github.com/Levelup-studio/images/cmd"
 )
 
 //go:generate pkger -include /static -o build

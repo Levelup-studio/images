@@ -82,11 +82,11 @@ func (c *Chrome) Build() error {
 	}
 	image.BuildArgs = append(image.BuildArgs, fmt.Sprintf("VERSION=%s", pkgTagVersion))
 
-	err = c.downloadChromeDriver(image.Dir, driverVersion)
-	if err != nil {
-		return fmt.Errorf("failed to download chromedriver: %v", err)
-	}
-	image.Labels = []string{fmt.Sprintf("driver=chromedriver:%s", driverVersion)}
+	// err = c.downloadChromeDriver(image.Dir, driverVersion)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to download chromedriver: %v", err)
+	// }
+	// image.Labels = []string{fmt.Sprintf("driver=chromedriver:%s", driverVersion)}
 
 	err = image.Build()
 	if err != nil {
@@ -130,14 +130,14 @@ func (c *Chrome) parseChromeDriverVersion(pkgVersion string) (string, error) {
 	return version, nil
 }
 
-func (c *Chrome) downloadChromeDriver(dir string, version string) error {
-	u := fmt.Sprintf("http://chromedriver.storage.googleapis.com/%s/chromedriver_linux64.zip", version)
-	_, err := downloadDriver(u, chromeDriverBinary, dir)
-	if err != nil {
-		return fmt.Errorf("download chromedriver: %v", err)
-	}
-	return nil
-}
+// func (c *Chrome) downloadChromeDriver(dir string, version string) error {
+// 	u := fmt.Sprintf("http://chromedriver.storage.googleapis.com/%s/chromedriver_linux64.zip", version)
+// 	_, err := downloadDriver(u, chromeDriverBinary, dir)
+// 	if err != nil {
+// 		return fmt.Errorf("download chromedriver: %v", err)
+// 	}
+// 	return nil
+// }
 
 func (c *Chrome) getLatestChromeDriver(baseUrl string, pkgVersion string) (string, error) {
 	fetchVersion := func(url string) (string, error) {

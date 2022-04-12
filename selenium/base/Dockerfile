@@ -1,74 +1,45 @@
-FROM golang:1.17 as go
+FROM --platform=linux/arm64 golang:alpine3.15 as go
 
 COPY xseld /xseld
 
 COPY fileserver /fileserver
 
 RUN \
-    apt-get update && \
-    apt-get install -y upx-ucl libx11-dev && \
+    apk update && \
+    apk --no-cache add libx11-dev build-base && \
+    wget https://dl-cdn.alpinelinux.org/alpine/v3.11/community/aarch64/upx-3.95-r2.apk && \
+    apk add --allow-untrusted upx-3.95-r2.apk && \
     cd /xseld && \
-    GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" && \
+    go env -w GO111MODULE=auto &&\
+    if [ `uname -m` = "aarch64" ] ; then \
+       GOOS=linux GOARCH=arm64 go build -ldflags="-s -w"; \
+    else \
+       GOOS=linux GOARCH=amd64 go build -ldflags="-s -w"; \
+    fi && \
     upx /xseld/xseld && \
     cd /fileserver && \
     go test -race && \
-    GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" && \
+    if [ `uname -m` = "aarch64" ] ; then \
+       GOOS=linux GOARCH=arm64 go build -ldflags="-s -w"; \
+    else \
+       GOOS=linux GOARCH=amd64 go build -ldflags="-s -w"; \
+    fi && \
     upx /fileserver/fileserver
 
-FROM ubuntu:20.04
+FROM --platform=linux/arm64 alpine:3.15
 
 RUN \
-    apt update && \
-    apt remove -y libcurl4 && \
-    apt install -y apt-transport-https ca-certificates tzdata locales libcurl4 curl gnupg && \
-    DEBIAN_FRONTEND=noninteractive apt -y upgrade && \
-    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections && \
-    echo 'UTC' | tee /etc/timezone && \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    echo "gtk-cursor-blink=0" > /root/.gtkrc-2.0 && \
-    apt update && \
-    apt install -y ttf-mscorefonts-installer \
-    ttf-dejavu-core \
-    fontconfig \
-    fontconfig-config \
-    fonts-dejavu-core \
-    fonts-liberation \
-    fonts-ubuntu-font-family-console \
-    fonts-wqy-zenhei \
-    fonts-thai-tlwg-ttf \
-    fonts-ipafont-mincho \
-    fonts-sahadeva \
-    fonts-noto-unhinted \
-    fonts-noto-color-emoji \
-    libfontconfig1 \
-    libfontenc1 \
-    libfreetype6 \
-    libxfont2 \
-    libxft2 \
-    libnss3-tools \
-    xfonts-base \
-    xfonts-encodings \
-    xfonts-utils \
-    flashplugin-installer \
-    xvfb \
-    pulseaudio \
-    fluxbox \
-    x11vnc \
-    feh \
-    wmctrl \
-    libnss-wrapper \
-    xsel && \
-    mkdir -p /var/lib/locales/supported.d/ && grep UTF-8 /usr/share/i18n/SUPPORTED > /var/lib/locales/supported.d/all && \
-    locale-gen && update-locale && \
-    fc-cache -f -v && \
+    apk add xvfb-run xorg-server xsel x11vnc feh fluxbox xvfb pulseaudio-utils nano &&\
+    apk add wmctrl --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ &&\
+    apk add pulseaudio --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community/
+
+RUN \
     adduser --system --home /home/selenium --uid 4096 \
     --ingroup root --disabled-password --shell /bin/bash selenium && \
     mkdir -p /home/selenium/Downloads && \
     mkdir -p /home/selenium/.fluxbox && \
     chgrp -R 0 /home/selenium && \
     chmod -R g=u /home/selenium && \
-    ln -sf /bin/true /usr/bin/xdg-open && \
-    apt-get clean && \
     rm -Rf /tmp/* && rm -Rf /var/lib/apt/lists/*
 
 COPY fluxbox /usr/share/fluxbox/styles/

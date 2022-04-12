@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/aerokube/images/build"
+	"github.com/Levelup-studio/images/build"
 	"github.com/spf13/cobra"
 )
 
